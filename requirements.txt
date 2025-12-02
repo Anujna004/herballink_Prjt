@@ -1,0 +1,15 @@
+Flask
+gunicorn
+tensorflow-cpu
+numpy
+pillow
+pymongo
+dnspython
+opencv-python
+scikit-learn
+werkzeug
+itsdangerous
+jinja2
+click
+python-dotenv
+gridfs

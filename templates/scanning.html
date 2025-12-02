@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HerbalLink - Scan</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #d0f0c0, #a8e6cf, #dcedc1);
+      background-size: 400% 400%;
+      animation: bgMove 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+      padding: 20px;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      animation: fadeIn 2s ease;
+      max-width: 400px;
+      width: 100%;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      font-size: 2.5em;
+      color: #2e7d32;
+      margin-bottom: 20px;
+    }
+
+    p {
+      font-size: 1.2em;
+      color: #3e4e42;
+      margin-bottom: 30px;
+    }
+
+    .scan-btn {
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      font-weight: 700;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+      width: 100%;
+      margin: 10px 0;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .scan-btn:hover {
+      background-color: #1b4d20;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Scan with HerbalLink</h1>
+    <p>Select what you want to scan:</p>
+
+    <!-- Scan Leaf button -->
+    <a href="{{ url_for('scan_leaf_page') }}" class="scan-btn">🌿 Scan Leaf</a>
+
+    <!-- Scan Skin button -->
+    <a href="{{ url_for('scan_skin_page') }}" class="scan-btn">🩺 Scan Skin</a>
+  </div>
+</body>
+</html>

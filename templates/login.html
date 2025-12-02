@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HerbalLink - Login</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #d0f0c0, #a8e6cf, #dcedc1);
+      background-size: 400% 400%;
+      animation: backgroundMove 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    @keyframes backgroundMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .form-container {
+      background: rgba(255, 255, 255, 0.9);
+      padding: 40px 35px;
+      border-radius: 20px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      animation: fadeIn 2s ease;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(-20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    h2 {
+      color: #2e7d32;
+      margin-bottom: 25px;
+      font-weight: 700;
+    }
+
+    .flash-message {
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+
+    .flash-message.success { background: #c8e6c9; color: #2e7d32; }
+    .flash-message.danger { background: #ffcdd2; color: #c62828; }
+
+    label {
+      display: block;
+      text-align: left;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #3e4e42;
+      font-size: 1em;
+    }
+
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border: 1.5px solid #a8e6cf;
+      border-radius: 8px;
+      font-size: 1em;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    input[type="email"]:focus, input[type="password"]:focus {
+      border-color: #2e7d32;
+      box-shadow: 0 0 8px #a8e6cf;
+    }
+
+    button {
+      background-color: #2e7d32;
+      color: white;
+      border: none;
+      padding: 14px;
+      font-size: 1.2em;
+      font-weight: 700;
+      border-radius: 40px;
+      cursor: pointer;
+      width: 100%;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 5px 15px rgba(46, 125, 50, 0.4);
+    }
+
+    button:hover { background-color: #1b4d20; }
+
+    .switch-link {
+      margin-top: 20px;
+      font-size: 0.95em;
+      color: #3e4e42;
+    }
+
+    .switch-link a {
+      color: #2e7d32;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .switch-link a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Login to HerbalLink</h2>
+
+    <!-- Flash message block -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="flash-message {{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <!-- Flask-compatible form -->
+    <form id="loginForm" action="{{ url_for('login') }}" method="POST">
+      <label for="email">Email address</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required />
+
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="********" required />
+
+      <button type="submit">Login</button>
+    </form>
+
+    <div class="switch-link">
+      Don't have an account? <a href="{{ url_for('register') }}">Register here</a>
+    </div>
+  </div>
+</body>
+</html>

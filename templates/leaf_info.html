@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaf Info</title>
+  <style>
+    body { 
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f0fdf4; 
+      padding: 20px;
+    }
+    .container { 
+      background: white; 
+      padding: 30px; 
+      border-radius: 12px;
+      max-width: 600px; 
+      margin: auto; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 { color: #166534; }
+    .section { margin-top: 15px; }
+    .label { font-weight: bold; color: #166534; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 id="leafTitle">🌿 Leaf Name</h1>
+    
+    <div class="section">
+      <p class="label">Medicinal Uses:</p>
+      <p id="leafUses">Loading...</p>
+    </div>
+
+    <div class="section">
+      <p class="label">Helps with Skin Diseases:</p>
+      <ul id="leafDiseases"></ul>
+    </div>
+  </div>
+
+  <script>
+    // Extract the leaf name from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const leaf = urlParams.get('leaf') || "Unknown";
+
+    // Fetch leaf-specific info from Flask
+    fetch(`/get-leaf-info?leaf=${leaf}`)
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById("leafTitle").innerText = `🌿 ${leaf}`;
+        document.getElementById("leafUses").innerText = data.uses || "No info available.";
+
+        // Populate diseases as list
+        const diseasesList = document.getElementById("leafDiseases");
+        diseasesList.innerHTML = ""; // clear old
+        if (data.diseases && data.diseases.length > 0) {
+          data.diseases.forEach(disease => {
+            const li = document.createElement("li");
+            li.textContent = disease;
+            diseasesList.appendChild(li);
+          });
+        } else {
+          diseasesList.innerHTML = "<li>No specific skin diseases info.</li>";
+        }
+      })
+      .catch(err => {
+        document.getElementById("leafUses").innerText = "No data available.";
+        document.getElementById("leafDiseases").innerHTML = "<li>No data available.</li>";
+      });
+  </script>
+</body>
+</html>

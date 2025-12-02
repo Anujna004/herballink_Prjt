@@ -1,0 +1,334 @@
+<!DOCTYPE html>   
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Skin Disease Detection - HerbalLink</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    html { scroll-behavior: smooth; }
+    .carousel {
+      display: flex;
+      animation: scroll 20s linear infinite;
+    }
+    .carousel img {
+      width: 300px;
+      height: 200px;
+      object-fit: cover;
+      margin-right: 20px;
+      border-radius: 1rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    @keyframes scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-green-50 via-blue-50 to-white font-sans text-gray-800">
+
+  <!-- Navbar -->
+  <nav class="fixed w-full bg-white/80 backdrop-blur-md shadow z-50">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-extrabold text-green-700">🌿 HerbalLink</h1>
+      <ul class="flex space-x-6 font-medium">
+        <li><a href="#features" class="hover:text-green-600">✨ Features</a></li>
+        <li><a href="#benefits" class="hover:text-green-600">💡 Benefits</a></li>
+        <li><a href="#tips" class="hover:text-green-600">🌸 Tips</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero + Upload Section -->
+  <section id="upload" class="min-h-screen flex flex-col items-center justify-center text-center px-6 pt-28 bg-gradient-to-r from-green-100 via-blue-50 to-green-50">
+    <h2 class="text-5xl md:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-green-700 to-blue-600">
+      🩺 Detect Skin Diseases with AI
+    </h2>
+    <p class="mt-4 text-lg text-gray-700 max-w-2xl">
+      Upload an image and get instant predictions with confidence score and Ayurvedic recommendations for natural healing.
+    </p>
+
+    <!-- Upload Box -->
+    <div class="mt-10 bg-white/90 backdrop-blur-lg p-8 rounded-3xl shadow-2xl w-full max-w-2xl border border-white/40">
+      <form id="upload-form" enctype="multipart/form-data" class="space-y-6">
+        <input type="file" name="image" id="fileInput" accept="image/*" onchange="previewImage(event)" class="hidden">
+
+        <h2 class="text-3xl font-bold text-gray-800 mb-6">📤 Upload or Capture Your Image</h2>
+        <div class="flex flex-wrap justify-center gap-4">
+          <button type="button"
+                  onclick="document.getElementById('fileInput').click();"
+                  class="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition transform hover:scale-110">
+            📂 Select Image
+          </button>
+
+          <button type="button"
+                  onclick="openCamera()"
+                  class="bg-purple-600 hover:bg-purple-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition transform hover:scale-110">
+            📸 Open Camera
+          </button>
+
+          <button type="submit"
+                  class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition transform hover:scale-110">
+            🔍 Detect
+          </button>
+        </div>
+
+        <!-- 🌿 Go to Leaf Detection Button -->
+        <!-- 🌿 Go to Leaf Detection Button -->
+
+<!-- Go to Skin Detection Button (FIXED) -->
+      <div class="flex justify-center mt-6">
+        <a href="{{ url_for('scan_leaf_page') }}" 
+           class="bg-green-600 text-white px-5 py-2 rounded-full shadow-lg 
+                  hover:bg-green-700 transition transform hover:scale-105">
+           🌿 Go to Leaf Detection
+        </a>
+      </div>
+
+
+
+        <!-- Camera Preview -->
+        <div id="cameraSection" class="hidden mt-6">
+          <video id="cameraStream" autoplay playsinline class="mx-auto rounded-xl shadow-md max-h-64 border border-gray-300"></video>
+          <button type="button" onclick="capturePhoto()" 
+                  class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg">
+            📷 Capture
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div id="loading" class="hidden mt-4 flex justify-center">
+          <div class="w-10 h-10 border-4 border-green-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+
+        <!-- Result -->
+        <div id="result" class="mt-6 text-sm font-medium text-gray-800"></div>
+
+        <!-- Translate -->
+        <div id="translateSection" class="hidden mt-4 flex justify-center gap-4">
+          <button id="toKannadaBtn" type="button" onclick="translateToKannada()"
+            class="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition transform hover:scale-110">
+            🌐 Translate to Kannada
+          </button>
+
+          <button id="toEnglishBtn" type="button" onclick="translateToEnglish()"
+            class="hidden bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg transition transform hover:scale-110">
+            🔁 Back to English
+          </button>
+        </div>
+
+        <!-- Disclaimer -->
+        <div id="caution" class="mt-6 p-4 rounded-xl bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 text-left hidden">
+          ⚠️ <strong>Disclaimer:</strong> Herbal remedies can support skin health, but they are <strong>not a substitute for medical advice.</strong>  
+          If your skin condition is severe, painful, spreading, or not improving — please consult a <strong>dermatologist</strong> immediately.
+        </div>
+
+        <!-- Preview -->
+        <div id="preview" class="mt-6 space-y-4">
+          <p id="filename" class="text-gray-600 font-medium"></p>
+          <img id="imagePreview" src="#" alt="Image Preview"
+               class="mx-auto rounded-xl shadow-md max-h-64 hidden border border-gray-300 p-1" />
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features" class="py-20 px-6 text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-10">✨ Features</h2>
+    <div class="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+      <div class="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
+        <img src="https://img.icons8.com/fluency/96/ai.png" alt="AI" class="mx-auto mb-4">
+        <h3 class="font-bold text-xl mb-2">AI-Powered Detection</h3>
+        <p class="text-gray-600">Get accurate predictions of skin conditions using deep learning.</p>
+      </div>
+      <div class="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
+        <img src="https://img.icons8.com/fluency/96/natural-food.png" alt="Ayurveda" class="mx-auto mb-4">
+        <h3 class="font-bold text-xl mb-2">Ayurvedic Guidance</h3>
+        <p class="text-gray-600">Receive natural remedies and healing suggestions from Ayurveda.</p>
+      </div>
+      <div class="p-6 bg-white rounded-2xl shadow hover:shadow-lg transition">
+        <img src="https://img.icons8.com/fluency/96/stopwatch.png" alt="Instant Results" class="mx-auto mb-4">
+        <h3 class="font-bold text-xl mb-2">Easy to Use</h3>
+        <p class="text-gray-600">Just upload a photo, and our system provides results instantly.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Benefits -->
+  <section id="benefits" class="py-20 px-6 bg-green-50 text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-10">💡 Benefits of Healthy Skin</h2>
+    <div class="grid md:grid-cols-2 gap-10 max-w-5xl mx-auto items-center">
+      <div>
+        <h3 class="font-bold text-2xl mb-4">Why Maintain Healthy Skin?</h3>
+        <ul class="text-gray-700 space-y-3 text-left">
+          <li>✅ Protects against infections and diseases</li>
+          <li>✅ Boosts self-confidence</li>
+          <li>✅ Reflects overall well-being</li>
+          <li>✅ Prevents long-term skin issues</li>
+        </ul>
+      </div>
+      <img src="{{ url_for('static', filename='images/image1.jpg') }}" alt="Skin Image" class="w-48 h-48 object-cover rounded-xl shadow-lg mx-auto">
+    </div>
+  </section>
+
+  <!-- Tips -->
+  <section id="tips" class="py-20 px-6 bg-blue-50 text-center">
+    <h2 class="text-3xl font-bold text-gray-800 mb-10">🌸 Healthy Skin Tips</h2>
+    <div class="overflow-hidden max-w-5xl mx-auto">
+      <div class="carousel">
+        <img src="{{ url_for('static', filename='images/image2.jpg') }}" alt="Natural Care">
+        <img src="{{ url_for('static', filename='images/image3.jpg') }}" alt="Herbal Remedies">
+        <img src="{{ url_for('static', filename='images/image4.jpg') }}" alt="Glowing Skin">
+        <img src="{{ url_for('static', filename='images/image5.jpg') }}" alt="Leaf Nature">
+        <img src="{{ url_for('static', filename='images/image6.jpg') }}" alt="Fresh Face">
+      </div>
+    </div>
+    <p class="mt-6 text-gray-700">✨ Eat healthy • 💧 Stay hydrated • 🌿 Use natural remedies • 😴 Sleep well</p>
+  </section>
+
+  <!-- JS -->
+  <script>
+    const form = document.getElementById("upload-form");
+    const fileInput = document.getElementById("fileInput");
+    const resultDiv = document.getElementById("result");
+    const translateSection = document.getElementById("translateSection");
+    const caution = document.getElementById("caution");
+    const filename = document.getElementById("filename");
+    const imagePreview = document.getElementById("imagePreview");
+    const loading = document.getElementById("loading");
+    const cameraSection = document.getElementById("cameraSection");
+    const video = document.getElementById("cameraStream");
+    let stream = null;
+    let capturedBlob = null;
+    let originalResultHTML = "";
+    let originalDisclaimerHTML = "";
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      let file = fileInput.files[0];
+      if (!file && capturedBlob) {
+        file = new File([capturedBlob], "captured.jpg", { type: "image/jpeg" });
+      }
+
+      if (!file) {
+        resultDiv.innerText = "⚠️ Please select or capture an image.";
+        resultDiv.className = "text-red-600 mt-4 font-medium";
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("image", file);
+
+      loading.classList.remove("hidden");
+      resultDiv.innerHTML = "";
+      caution.classList.add("hidden");
+      translateSection.classList.add("hidden");
+
+      try {
+        const response = await fetch("/predict", { method: "POST", body: formData });
+        const data = await response.json();
+        loading.classList.add("hidden");
+
+        resultDiv.innerHTML = `
+          <p><strong>🦠 Predicted Disease:</strong> ${data.predicted_class}</p>
+          <p><strong>📊 Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%</p>
+          <p><strong>🌿 Recommendation:</strong> ${data.recommendation}</p>
+        `;
+
+        resultDiv.classList.add("bg-green-50", "rounded-xl", "p-4", "shadow-md");
+        caution.classList.remove("hidden");
+        translateSection.classList.remove("hidden");
+
+        originalResultHTML = resultDiv.innerHTML;
+        originalDisclaimerHTML = caution.innerHTML;
+      } catch (error) {
+        loading.classList.add("hidden");
+        resultDiv.innerText = "❌ Prediction failed. Try again.";
+        resultDiv.className = "text-red-600 mt-4 font-medium";
+      }
+    });
+
+    async function translateToKannada() {
+      const text = resultDiv.innerText.trim();
+      if (!text) {
+        alert("No text available for translation.");
+        return;
+      }
+
+      try {
+        const res = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(text) + "&langpair=en|kn");
+        const data = await res.json();
+
+        const disclaimerText = "⚠️ Disclaimer: Herbal remedies can support skin health, but they are not a substitute for medical advice. If your skin condition is severe, painful, spreading, or not improving — please consult a dermatologist immediately.";
+        const disclaimerRes = await fetch("https://api.mymemory.translated.net/get?q=" + encodeURIComponent(disclaimerText) + "&langpair=en|kn");
+        const disclaimerData = await disclaimerRes.json();
+
+        if (data.responseData.translatedText) {
+          resultDiv.innerHTML = `
+            <p class='text-lg font-semibold text-green-700'>🈯 ಕನ್ನಡ ಅನುವಾದ:</p>
+            <p>${data.responseData.translatedText}</p>
+          `;
+          document.getElementById("toEnglishBtn").classList.remove("hidden");
+          document.getElementById("toKannadaBtn").classList.add("hidden");
+        }
+
+        if (disclaimerData.responseData.translatedText) {
+          caution.innerHTML = `
+            ⚠️ <strong>ಘೋಷಣೆ:</strong> ${disclaimerData.responseData.translatedText}
+          `;
+        }
+      } catch (err) {
+        alert("Error occurred during translation.");
+      }
+    }
+
+    function translateToEnglish() {
+      resultDiv.innerHTML = originalResultHTML;
+      caution.innerHTML = originalDisclaimerHTML;
+      document.getElementById("toKannadaBtn").classList.remove("hidden");
+      document.getElementById("toEnglishBtn").classList.add("hidden");
+    }
+
+    function previewImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        filename.innerText = "📂 Selected File: " + file.name;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          imagePreview.src = e.target.result;
+          imagePreview.classList.remove("hidden");
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    async function openCamera() {
+      cameraSection.classList.remove("hidden");
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch {
+        alert("⚠️ Camera not available or permission denied.");
+      }
+    }
+
+    function capturePhoto() {
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+      canvas.toBlob((blob) => {
+        capturedBlob = blob;
+        imagePreview.src = URL.createObjectURL(blob);
+        imagePreview.classList.remove("hidden");
+        filename.innerText = "📸 Captured from Camera";
+      }, "image/jpeg");
+    }
+  </script>
+
+</body>
+</html>
