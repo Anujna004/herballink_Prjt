@@ -6,20 +6,8 @@ from flask import Flask, render_template, request, jsonify, redirect, url_for, f
 from werkzeug.security import generate_password_hash, check_password_hash
 from pymongo import MongoClient
 import numpy as np
-
-# TensorFlow imports (optional if available)
-try:
-    from tensorflow.keras.models import load_model
-    from tensorflow.keras.preprocessing import image as keras_image
-    TF_AVAILABLE = True
-except Exception:
-    TF_AVAILABLE = False
-
-# Optional requests for model download
-try:
-    import requests
-except Exception:
-    requests = None
+from PIL import Image
+import tensorflow as tf
 
 # ---------------------------
 # Flask App Config
@@ -27,12 +15,11 @@ except Exception:
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-change-me")
 
-# Upload folder
 UPLOAD_FOLDER = os.path.join(app.root_path, "uploads")
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # ---------------------------
-# MongoDB Atlas Config
+# MongoDB Config
 # ---------------------------
 MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
 client = MongoClient(MONGO_URI)
@@ -44,12 +31,12 @@ scans_collection = db.get_collection("scans")
 # ---------------------------
 # Models
 # ---------------------------
-LEAF_MODEL_PATH = os.environ.get("LEAF_MODEL_PATH", "model1.h5")
-SKIN_MODEL_PATH = os.environ.get("SKIN_MODEL_PATH", "skin_disease_model.h5")
+LEAF_MODEL_PATH = os.environ.get("LEAF_MODEL_PATH", "model1.tflite")
+SKIN_MODEL_PATH = os.environ.get("SKIN_MODEL_PATH", "skin_disease_model.tflite")
 CLASSES_TXT = os.environ.get("CLASSES_TXT", "classes.txt")
 
-leaf_model = None
-skin_model = None
+leaf_interpreter = None
+skin_interpreter = None
 disease_classes = []
 
 leaf_class_names = [
@@ -57,28 +44,23 @@ leaf_class_names = [
     'Mint','Neem','Tulsi','Turmeric','Unknown'
 ]
 
-if TF_AVAILABLE:
-    try:
-        if os.path.exists(LEAF_MODEL_PATH):
-            leaf_model = load_model(LEAF_MODEL_PATH)
-            app.logger.info("Leaf model loaded")
-    except Exception as e:
-        app.logger.warning("Leaf model load failed: %s", e)
+# Load TFLite Leaf model
+if os.path.exists(LEAF_MODEL_PATH):
+    leaf_interpreter = tf.lite.Interpreter(model_path=LEAF_MODEL_PATH)
+    leaf_interpreter.allocate_tensors()
+    app.logger.info("Leaf TFLite model loaded")
 
-    try:
-        if os.path.exists(SKIN_MODEL_PATH):
-            skin_model = load_model(SKIN_MODEL_PATH)
-            app.logger.info("Skin model loaded")
-    except Exception as e:
-        app.logger.warning("Skin model load failed: %s", e)
+# Load TFLite Skin model
+if os.path.exists(SKIN_MODEL_PATH):
+    skin_interpreter = tf.lite.Interpreter(model_path=SKIN_MODEL_PATH)
+    skin_interpreter.allocate_tensors()
+    app.logger.info("Skin TFLite model loaded")
 
-    try:
-        if os.path.exists(CLASSES_TXT):
-            with open(CLASSES_TXT, "r") as f:
-                disease_classes = [line.strip() for line in f if line.strip()]
-            app.logger.info("Loaded %d disease classes", len(disease_classes))
-    except Exception as e:
-        app.logger.warning("Failed to load classes.txt: %s", e)
+# Load disease classes
+if os.path.exists(CLASSES_TXT):
+    with open(CLASSES_TXT, "r") as f:
+        disease_classes = [line.strip() for line in f if line.strip()]
+    app.logger.info("Loaded %d disease classes", len(disease_classes))
 
 # ---------------------------
 # Leaf & Skin Info
@@ -116,13 +98,22 @@ recommendations = {
 def allowed_file(filename):
     return filename and "." in filename and filename.rsplit(".", 1)[1].lower() in {"png", "jpg", "jpeg"}
 
-def predict_leaf_image(filepath):
-    if leaf_model is None:
-        return "Unknown", 0.0
-    img = keras_image.load_img(filepath, target_size=(128,128))
-    arr = keras_image.img_to_array(img)/255.0
+def preprocess_image_tflite(filepath, size=(128,128)):
+    img = Image.open(filepath).convert("RGB")
+    img = img.resize(size)
+    arr = np.array(img, dtype=np.float32)/255.0
     arr = np.expand_dims(arr, axis=0)
-    preds = leaf_model.predict(arr)[0]
+    return arr
+
+def predict_leaf_image(filepath):
+    if leaf_interpreter is None:
+        return "Unknown", 0.0
+    input_details = leaf_interpreter.get_input_details()
+    output_details = leaf_interpreter.get_output_details()
+    arr = preprocess_image_tflite(filepath)
+    leaf_interpreter.set_tensor(input_details[0]['index'], arr)
+    leaf_interpreter.invoke()
+    preds = leaf_interpreter.get_tensor(output_details[0]['index'])[0]
     idx = int(np.argmax(preds))
     conf = float(np.max(preds))*100
     name = leaf_class_names[idx] if idx < len(leaf_class_names) else "Unknown"
@@ -131,12 +122,14 @@ def predict_leaf_image(filepath):
     return name, conf
 
 def predict_skin_image(filepath):
-    if skin_model is None or not disease_classes:
+    if skin_interpreter is None or not disease_classes:
         return "unknown", 0.0
-    img = keras_image.load_img(filepath, target_size=(128,128))
-    arr = keras_image.img_to_array(img)/255.0
-    arr = np.expand_dims(arr, axis=0)
-    preds = skin_model.predict(arr)[0]
+    input_details = skin_interpreter.get_input_details()
+    output_details = skin_interpreter.get_output_details()
+    arr = preprocess_image_tflite(filepath)
+    skin_interpreter.set_tensor(input_details[0]['index'], arr)
+    skin_interpreter.invoke()
+    preds = skin_interpreter.get_tensor(output_details[0]['index'])[0]
     idx = int(np.argmax(preds))
     conf = float(np.max(preds))
     pred = disease_classes[idx] if idx < len(disease_classes) else "unknown"
@@ -144,7 +137,9 @@ def predict_skin_image(filepath):
         return "unknown", 0.0
     return pred, conf
 
+# ---------------------------
 # Login required decorator
+# ---------------------------
 def login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
@@ -157,7 +152,6 @@ def login_required(f):
 # ---------------------------
 # Routes
 # ---------------------------
-
 @app.route("/")
 def home():
     return render_template("main_page.html")
