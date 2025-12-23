@@ -89,6 +89,11 @@
             class="mt-4 bg-red-600 hover:bg-red-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg">
             📷 Capture
           </button>
+          <button type="button" onclick="switchCamera()"
+          class="mt-3 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold px-6 py-2 rounded-full shadow-lg">
+          🔄 Switch Camera
+          </button>
+
         </div>
 
         <!-- Loading Spinner -->
@@ -200,6 +205,28 @@
 
   let stream = null;
   let capturedBlob = null;
+  let useBackCamera = true;
+
+async function switchCamera() {
+  useBackCamera = !useBackCamera;
+
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: useBackCamera ? "environment" : "user"
+      }
+    });
+    video.srcObject = stream;
+  } catch {
+    alert("Camera switch failed.");
+  }
+}
+
 
   // Save original English versions
   let originalResultHTML = "";
@@ -276,14 +303,36 @@
   }
 
   async function openCamera() {
-    cameraSection.classList.remove("hidden");
+  cameraSection.classList.remove("hidden");
+
+  // Stop existing stream if any
+  if (stream) {
+    stream.getTracks().forEach(track => track.stop());
+    stream = null;
+  }
+
+  try {
+    // ✅ Use IDEAL (most compatible)
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: "environment"
+      }
+    });
+  } catch (err) {
     try {
-      stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      video.srcObject = stream;
-    } catch {
-      alert("⚠️ Camera not available or permission denied.");
+      // Fallback to default camera
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: true
+      });
+    } catch (e) {
+      alert("⚠️ Camera not accessible. Please allow camera permission.");
+      return;
     }
   }
+
+  video.srcObject = stream;
+}
+
 
   function capturePhoto() {
     const canvas = document.createElement("canvas");
