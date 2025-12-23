@@ -68,28 +68,39 @@ if os.path.exists(CLASSES_TXT):
 leaf_info = {
     "Aloevera": {"uses": "Soothes burns, reduces scars, hydrates skin, and promotes wound healing.", "diseases": ["Eczema", "Psoriasis", "Acne", "Skin ulcers", "Sunburn", "Dry skin"]},
     "Amruthaballi": {"uses": "Detoxifies blood and reduces skin allergies.", "diseases": ["Skin rashes", "Skin allergies"]},
-    "Tulsi": {"uses": "Has antibacterial properties for skin health.", "diseases": ["Acne", "Skin infections"]},
+    "Arali": {"uses":"Reduces inflammation, soothes rashes and promotes wound healing.", "diseases": ["Eczema","Ringworm","Minor Wounds"]},
+    "Bhrami": {"uses": "Improves skin hydration and reduces inflammation.", "diseases": ["Eczema", "Psoriasis", "Dry skin"]},
+    "Curry leaves": {"uses": "Nourishes skin and prevents dryness.", "diseases": ["Dry skin"]},
+    "Doddpathre": {"uses":"Soothes the skin and reduces itching, redness and microbial infections.", "diseases": ["Skin rashes","Eczema","Ringworm"]},
+    "Hibiscus": {"uses": "Rejuvenates skin and reduces aging signs.", "diseases": ["Wrinkles", "Skin aging"]},
     "Neem": {"uses": "Powerful antimicrobial, treats many skin conditions.", "diseases": ["Eczema", "Acne", "Psoriasis", "Ringworm", "Scabies", "Fungal infections"]},
     "Mint": {"uses": "Cools and refreshes skin.", "diseases": ["Acne", "Skin irritation"]},
+    "Tulsi": {"uses": "Has antibacterial properties for skin health.", "diseases": ["Acne", "Skin infections"]},
     "Turmeric": {"uses": "Natural anti-inflammatory for skin issues.", "diseases": ["Eczema", "Psoriasis", "Skin infections", "Wounds", "Acne scars"]},
-    "Ginger": {"uses": "Improves skin elasticity and reduces inflammation.", "diseases": ["Inflammatory skin conditions", "Skin aging"]},
-    "Lemon": {"uses": "Lightens pigmentation and reduces acne scars.", "diseases": ["Hyperpigmentation", "Acne scars", "Oily skin"]},
-    "Guava": {"uses": "Improves skin texture and prevents premature aging.", "diseases": ["Skin aging", "Wrinkles"]},
-    "Henna": {"uses": "Cools skin and treats fungal issues.", "diseases": ["Fungal skin infections", "Skin rashes", "Burns"]},
-    "Hibiscus": {"uses": "Rejuvenates skin and reduces aging signs.", "diseases": ["Wrinkles", "Skin aging"]},
-    "Rose": {"uses": "Improves skin glow and soothes irritation.", "diseases": ["Acne", "Dry skin", "Skin irritation"]},
-    "Ashoka": {"uses": "Has properties for skin rejuvenation.", "diseases": ["Skin pigmentation", "Premature aging"]},
-    "Curry leaves": {"uses": "Nourishes skin and prevents dryness.", "diseases": ["Dry skin"]},
-    "Arali": {"uses":"Reduces inflammation, soothes rashes and promotes wound healing.", "diseases": ["Eczema","Ringworm","Minor Wounds"]},
-    "Doddpathre": {"uses":"Soothes the skin and reduces itching, redness and microbial infections.", "diseases": ["Skin rashes","Eczema","Ringworm"]},
+    
+   
+    
+    
 }
 
 recommendations = {
-    "acne": "Neem leaves act as a natural antibacterial agent...",
-    "eczema": "Aloe vera and neem leaves help calm itching...",
-    "psoriasis": "Neem and aloe vera leaves reduce scaling...",
-    "ringworm": "Basil (Tulsi) and neem leaves possess antifungal properties...",
-    "unknown": "No recommendation."
+    "eczema": "Aloe vera and neem leaves help calm itching, reduce redness, and promote skin healing in eczema. Apply aloe vera gel directly and use neem leaf paste on irritated patches; rinse after 20 minutes.",
+
+    "acne": "Neem leaves act as a natural antibacterial agent that helps clear acne-causing bacteria and reduce inflammation. Crush fresh neem leaves into a paste with water and apply to affected areas for 15–20 minutes before rinsing.",
+  
+    "chickenpoxx": "Neem leaves soothe the skin, reduce itching, and prevent secondary infections during chickenpox. Add neem leaves to lukewarm bath water or gently pat the skin with neem-infused water.",
+  
+    "monkeypox": "Neem and Tulsi leaves have antiviral and antiseptic properties that aid in skin recovery and reduce irritation. Apply neem-tulsi water (boiled and cooled) on rashes using a clean cotton cloth.",
+  
+    "normal": "No recommendation",
+  
+    "psoriasis": "Neem and aloe vera leaves reduce scaling, redness, and skin irritation caused by psoriasis. Apply neem oil diluted with coconut oil and use aloe vera gel regularly to moisturize the skin.",
+  
+    "ringworm": "Basil (Tulsi) and neem leaves possess strong antifungal properties that help eliminate ringworm infections. Apply a paste made from fresh neem and basil leaves directly to the infected area twice daily.",
+  
+    "unknown": "No recommendation.",
+  
+    "vitiligo": "Bakuchi (Psoralea) leaves help stimulate melanin production and support natural skin pigmentation. Apply bakuchi leaf oil carefully on white patches once daily; avoid excessive sunlight initially."
 }
 
 # ---------------------------
